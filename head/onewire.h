@@ -7,8 +7,7 @@
 #define MDC02_CFEED_CFB_MASK           	   	0x3F
 /*Bit definition of Ch_Sel register*/
 #define CCS_CHANNEL_MASK   					0x07
-
-
+#define MAXNUM_SWITCH_DEVICE_OUT  100
 void *memset(void *s, int ch, size_t n);
 
 void onewire_reset();
@@ -21,6 +20,7 @@ int onewire_readbit();
 int onewire_read2bits();
 unsigned char onewire_read();
 void read_command();
+int read_tempcap1(void);
 
 
 /////////////****  search rom_id **** ////////////
@@ -33,6 +33,10 @@ int onewire_read_rom(void);
 void onewire_targetsetup(unsigned char family_code);
 void onewire_familyshipsetup();
 void onewire_finddevic_fun();
+
+void onewire_find_alldevice();
+uint8_t Search_ROM(uint8_t (*romID)[8]) ;
+
 int onewire_resetcheck();
 int mdc02_channel(uint8_t channel);
 
@@ -41,38 +45,113 @@ uint8_t captocoscfg(float osCap);
 float cfbcfgtocaprange(uint8_t fbCfg);
 float coscfgtocapoffset(uint8_t osCfg);
 float mdc02_outputtocap(uint16_t out, float Co, float Cr);
+float mdc02_outputtotemp(int16_t out);
 
-void getcfg_capoffset(float *Coffset);
-void getcfg_caprange(float *Crange);
-bool setcapchannel(uint8_t channel);
+//void getcfg_capoffset(float *Coffset);
+//void getcfg_caprange(float *Crange);
+//bool setcapchannel(uint8_t channel);
 ////*** write ***////
 
 bool mdc02_writescratchpadext_skiprom(uint8_t *scr);
-bool writecosconfig(uint8_t Coffset, uint8_t Cosbits);
-bool mdc02_writeparameters_skiprom(uint8_t *scr);
-bool mdc02_capconfigurerange(float Cmin, float Cmax);
-bool writecfbconfig(uint8_t Cfb);
+//bool writecosconfig(uint8_t Coffset, uint8_t Cosbits);
+//bool mdc02_writeparameters_skiprom(uint8_t *scr);
+//bool mdc02_capconfigurerange(float Cmin, float Cmax);
+//bool writecfbconfig(uint8_t Cfb);
 
 
 /////////////**** read ****/////////////
+//bool read_tempwaiting(uint16_t *iTemp);
+
 int read_cap(void);
-bool readcfbconfig(uint8_t *Cfb);
-bool mdc02_readparameters_skiprom(uint8_t *scr);
-bool readcosconfig(uint8_t *Coscfg);
-bool readcapconfigure(float *Coffset, float *Crange);
-bool readstatusconfig(uint8_t *status, uint8_t *cfg);
-bool mdc02_capconfigureoffset(float Coffset);
-bool readtempcap1(uint16_t *iTemp, uint16_t *iCap1);
-bool mdc02_readc2c3c4_skiprom(uint8_t *scr);
-bool readcapc2c3c4(uint16_t *iCap);
-bool convertcap(void);
-bool mdc02_readscratchpad_skiprom(uint8_t *scr);
+//bool readcfbconfig(uint8_t *Cfb);
+//bool mdc02_readparameters_skiprom(uint8_t *scr);
+//bool readcosconfig(uint8_t *Coscfg);
+//bool readcapconfigure(float *Coffset, float *Crange);
+//bool readstatusconfig(uint8_t *status, uint8_t *cfg);
+//bool mdc02_capconfigureoffset(float Coffset);
+//bool readtempcap1(uint16_t *iTemp, uint16_t *iCap1);
+//bool mdc02_readc2c3c4_skiprom(uint8_t *scr);
+//bool readcapc2c3c4(uint16_t *iCap);
+//bool convertcap(void);
+//bool mdc02_readscratchpad_skiprom(uint8_t *scr);
 int mdc02_offset(float Co);
-int mdc02_range(float Cmin,float Cmax);
-bool mdc02_capconfigurefs(float Cfs);
+//int mdc02_range(float Cmin,float Cmax);
+//bool mdc02_capconfigurefs(float Cfs);
 uint8_t caprangetocfbcfg(float fsCap);
 
 
+//////////////////////**********************////////////////////////
+bool send_matchrom(uint8_t (*FoundROM)[8],int num);
+
+bool mdc02_readparameters_skiprom(uint8_t *scr,int num);
+bool  mdc02_readscratchpad_skiprom(uint8_t *scr,int num);
+bool mdc02_readc2c3c4_skiprom(uint8_t *scr,int num);
+bool readstatusconfig(uint8_t *status, uint8_t *cfg,int num);
+bool readcfbconfig(uint8_t *Cfb,int num);
+bool readcapconfigure(float *Coffset, float *Crange,int num);
+bool readtempcap1(uint16_t *iTemp, uint16_t *iCap1,int num);
+bool readcapc2c3c4(uint16_t *iCap,int num);
+bool read_tempwaiting(uint16_t *iTemp,int num);
+bool readcosconfig(uint8_t *Coscfg,int num);
+int read_temp(int num);
+
+void getcfg_caprange(float *Crange,int num);
+void getcfg_capoffset(float *Coffset,int num);
+bool setcapchannel(uint8_t channel,int num);
+bool convert_tempcap1(int num);
+bool convertcap(int num);
+void dev_type_choose_function();
+
+bool mdc02_writeparameters_skiprom(uint8_t *scr, int num);
+bool writecosconfig(uint8_t Coffset, uint8_t Cosbits,int num);
+bool writecfbconfig(uint8_t Cfb,int num);
+bool mdc02_capconfigureoffset(float Coffset,int num);
+bool mdc02_capconfigurefs(float Cfs,int num);
+bool mdc02_capconfigurerange(float Cmin, float Cmax,int num);
+
+int mdc02_range(float Cmin,float Cmax,int num);
+void romid_crc(int num);
+//void romid_crc(struct dev_slave *dev,int num);
+bool converttemp(int num);
+float MY18B20_outputtotemp(int16_t out,int num);
+
+
+
+typedef struct{
+	uint8_t buffer;
+	
+	int LastDiscrepancy;
+	int LastFamilyDiscrepancy;
+	int LastDeviceFlag;
+	unsigned char crc8;
+	/****全局变量：保存和电容配置寄存器对应的偏置电容和量程电容数值****/
+	float CapCfg_offset, CapCfg_range;
+	uint8_t CapCfg_ChanMap, CapCfg_Chan;
+//	unsigned char ROM_NO[8];
+}onewire;
+
+typedef enum
+{
+	//ROM command
+    SKIP_ROM            	= 0xcc,
+    READ_ROM            	= 0x33,
+    MATCH_ROM           	= 0x55,
+	SEARCH_ROM           	= 0xf0, 
+	ALARM_SEARCH			= 0xec,
+	//Function command
+    CONVERT_C           	= 0x66,
+    CONVERT_T           	= 0x44,
+	CONVERT_TC1             = 0x10,	
+	READ_SCRATCHPAD     	= 0xbe,
+	WRITE_SCRATCHPAD     	= 0x4e,
+	READ_TC1             	= 0xcf,	
+	READ_C2C3C4			    = 0xdc,
+	READ_PARAMETERS      	= 0x8b,
+	WRITE_PARAMETERS     	= 0xab,	
+	COPY_PAGE0				= 0x48,
+	READ_SCRATCHPAD_EXT  	= 0xdd,
+	WRITE_SCRATCHPAD_EXT 	= 0x77,
+} MDC02_OW_CMD;
 
 
 typedef struct
@@ -101,6 +180,25 @@ typedef struct
 	uint8_t Status;					/*系统状态寄存器, RO*/
 	uint8_t crc_scr;				/*CRC for byte0-7, RO*/
 } MDC02_SCRATCHPAD_READ;
+typedef struct
+{	
+	int8_t Tha_set_lsb;				
+	int8_t Tla_set_lsb;			
+	uint8_t Cfg;						/*系统配置寄存器, RW*/
+} MDC02_SCRATCHPAD_WRITE;
+
+typedef struct
+{
+	uint8_t tha_clear;				
+	uint8_t tla_clear;					
+	uint8_t hha_set;					
+	uint8_t hla_set;					
+	uint8_t hha_clear;				
+	uint8_t hla_clear;					
+	uint8_t udf[5];							
+	uint8_t MPW_test;					
+	uint8_t crc_ext;						
+} MDC02_SCRATCHPADEXT;
 
 typedef struct
 {
@@ -144,5 +242,8 @@ typedef enum{
  	COS_RANGE_7BIT	   = 0x80,
  	COS_RANGE_8BIT     = 0xC0, 
 }cfb_config;
-
+typedef enum device_type{
+	MDC02=1,
+	MY18B20Z,
+}device_type_t;
 #endif /* HEAD_ONEWIRE_H_ */
